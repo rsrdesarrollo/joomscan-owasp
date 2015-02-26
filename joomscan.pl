@@ -180,6 +180,8 @@ $txtfile =~ s/\.htm/\.txt/i;
 $txtfile = 'report/'.$txtfile;
 $outfile = ($args{o} && $args{o} eq 't')?$txtfile:$urlfile;
 
+my $ignoressl = ($args{n} && $args{n} =~ /s/g);
+
 my $ua = LWP::UserAgent->new('requests_redirectable'=>['GET','POST']);
 my $uagent = 'Mozilla/5.0 (Windows; U; Windows NT 5.2; en-US; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3';
 my $cookie = '';
@@ -204,6 +206,10 @@ $ua->agent($uagent);
 $ua->default_header('Referer'=> "http://$url/");
 $ua->timeout(30);
 
+if ($ignoressl)
+{
+    $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+}
 
 ### [Fingerprinting KB] ###
 
@@ -809,6 +815,10 @@ sub do_HEAD_request
 {
     my $ua = LWP::UserAgent->new('requests_redirectable'=>['GET','POST']);
     $ua->agent($uagent);
+    if ($ignoressl)
+    {
+        $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+    }
     if(defined($proxy) && $proxy ne '')
     {
         if($proxy !~  /:\/\//){$proxy = 'http://'.$proxy;}
@@ -846,6 +856,10 @@ sub do_GET_request
 {
     my $ua = LWP::UserAgent->new('requests_redirectable'=>['GET','POST']);
     $ua->agent($uagent);
+    if ($ignoressl)
+    {
+        $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+    }
     if(defined($proxy) && $proxy ne '')
     {
         if($proxy !~  /:\/\//){$proxy = 'http://'.$proxy;}
@@ -1000,6 +1014,10 @@ sub get_url_content
     my $resquest = GET "$u";
     my $ua = LWP::UserAgent->new('requests_redirectable'=>['GET','POST']);
     $ua->agent($uagent);
+    if ($ignoressl)
+    {
+        $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+    }
     if(defined($proxy) && $proxy ne '')
     {
         if($proxy !~  /:\/\//){$proxy = 'http://'.$proxy;}
@@ -1021,6 +1039,10 @@ sub get_url_any_content
     my $resquest = GET "$u";
     my $ua = LWP::UserAgent->new('requests_redirectable'=>['GET','POST']);
     $ua->agent($uagent);
+    if ($ignoressl)
+    {
+        $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+    }
     if($proxy ne '')
     {
         if($proxy !~  /:\/\//){$proxy = 'http://'.$proxy;}
@@ -1287,6 +1309,10 @@ Target: $url
 };
 
 ### 503/404 Check Fingerprinting ###
+if ($ignoressl)
+{
+    $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+}
 $target =$ua->get("$url");
 if($target->status_line =~ /(40|50)/g)
 {
@@ -1959,6 +1985,10 @@ while(<JO>) {
                 {
                     my $ua_ra = LWP::UserAgent->new('requests_redirectable'=>['GET','POST']);
                     $ua_ra->agent($uagent);
+                    if ($ignoressl)
+                    {
+                        $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+                    }
                     $ua_ra->default_header('Referer'=> "http://$url/");
                     $ua_ra->timeout(30);
                     $ua_ra->cookie_jar({});
@@ -2489,6 +2519,7 @@ print qq{
          -x <string:int>  = proXy to tunnel
          -c <string>      = Cookie (name=value;)
          -g "<string>"    = desired useraGent string(within ") 
+         -ns              = No SSL certificate verify (Ignore SSL Cert)
          -nv              = No Version fingerprinting check
          -nf              = No Firewall detection check
          -nvf/-nfv        = No version+firewall check
@@ -2634,6 +2665,10 @@ Update by: Web-Center, http://web-center.si
         my $md5 = Digest::MD5->new;
 	my $ua = LWP::UserAgent->new('requests_redirectable'=>['HEAD','GET','POST']);				
 	$ua->timeout(30);		
+        if ($ignoressl)
+        {
+            $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+        }
         while (<FILE>) {
                 $md5->add(encode_utf8($_));
         }
@@ -2667,6 +2702,10 @@ Update by: Web-Center, http://web-center.si
 sub download{
     my $ua = LWP::UserAgent->new('requests_redirectable'=>['HEAD','GET','POST']);				
     $ua->timeout(30);    
+    if ($ignoressl)
+    {
+        $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+    }
     print_owasp_logo();  
     print qq{
 OWASP Joomla! Vulnerability Scanner Full Package Download
@@ -2688,6 +2727,10 @@ sub update {
     print_owasp_logo();
     my $ua = LWP::UserAgent->new('requests_redirectable'=>['HEAD','GET','POST']);				
     $ua->timeout(30);	
+    if ($ignoressl)
+    {
+        $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+    }
     my $update_info_request = $ua->get($JOOMSCAN{db_info_url});
     print qq{
 OWASP Joomla! Vulnerability Scanner Database Update
@@ -2749,6 +2792,10 @@ Update by: Web-Center, http://web-center.si
 sub auto_update{
         my $ua = LWP::UserAgent->new('requests_redirectable'=>['HEAD','GET','POST']);				
         $ua->timeout(30);	        
+        if ($ignoressl)
+        {
+            $ua->ssl_opts(verify_hostname => 0 ,SSL_verify_mode => 0x00);
+        }
         my $file = shift || $0;
         open(FILE, $file) or die "Can't open '$file': $!";
         my $md5 = Digest::MD5->new;
